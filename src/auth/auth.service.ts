@@ -3,11 +3,12 @@ import { AuthPayloadDto, CreateUserDto } from './dto/auth.dto'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { JwtService } from '@nestjs/jwt'
 import * as argon from 'argon2'
+import { ConfigService } from '@nestjs/config'
 
 
 @Injectable()
 export class AuthService {
-    constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+    constructor(private prisma: PrismaService, private jwtService: JwtService, private readonly config: ConfigService) {}
 
     async validateUser({username, password}: AuthPayloadDto) {
         const user = await this.prisma.user.findFirst({where: { username: username }})
@@ -17,7 +18,7 @@ export class AuthService {
         }
         if (user.password === password) {
             const { password, ...result } = user
-            return await this.jwtService.signAsync(result, { secret: 'secret' })
+            return await this.jwtService.signAsync(result, { secret: this.config.get('jwtSecret') })
         }
 
         return null
