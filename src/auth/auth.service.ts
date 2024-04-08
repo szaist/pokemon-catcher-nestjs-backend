@@ -16,9 +16,10 @@ export class AuthService {
         if (!user) {
             return null
         }
-        if (user.password === password) {
+
+        if ( await argon.verify(user.password, password)) {
             const { password, ...result } = user
-            return await this.jwtService.signAsync(result, { secret: this.config.get('jwtSecret') })
+            return await this.jwtService.signAsync(result, { secret: this.config.get('jwtSecret'), expiresIn: '1d'})
         }
 
         return null
