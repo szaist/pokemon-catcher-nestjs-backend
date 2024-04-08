@@ -43,4 +43,14 @@ export class AuthService {
 
         return user
     }
+
+    async logout(authToken: string){
+        const token = authToken.split(' ')[1]
+        const blacklistedToken = await this.prisma.blacklistedAuthToken.findFirst({where: {token}})
+
+        if(blacklistedToken){
+            throw new HttpException('Token already blacklisted.', 409)
+        }
+        return await this.prisma.blacklistedAuthToken.create({data: {token}})
+    }
 }

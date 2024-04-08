@@ -22,4 +22,9 @@ export class AuthController {
     const user = await this.authService.register(createUser)
     return user
   }
+
+  @Post('logout')
+  async logout(@Req() req: Request) {
+    return await this.authService.logout(req.headers.authorization)
+  }
 }
