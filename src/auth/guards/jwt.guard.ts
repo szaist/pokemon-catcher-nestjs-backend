@@ -3,34 +3,33 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { AuthGuard } from "@nestjs/passport";
 import { Request } from 'express';
-import { config } from "process";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate  {
     constructor(private jwtService: JwtService, private configService: ConfigService, private prisma: PrismaService) {
-        
+        super()
     }
+
     async canActivate(context) {
         const request = context.switchToHttp().getRequest()
         const token = this.extractTokenFromHeader(request)
 
         if(!token) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException("Token not found")
         }
         
         if(this.checkTokenIsBlacklisted(token)) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException("Token is blacklisted")
         }
 
         try {
             const payload = await this.jwtService.verifyAsync(token, {
-                secret: this.configService.get('jwtSecret')
+                secret: this.configService.get<string>('jwtSecret')
             })
-
             request.user = payload
         } catch (error) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException("Token is invalid")
         }
 
         return true
@@ -44,6 +43,6 @@ export class JwtAuthGuard implements CanActivate {
     private checkTokenIsBlacklisted(token: string): boolean {
         const blacklistedToken = this.prisma.blacklistedAuthToken.findFirst({where: {token}})
 
-        return !!blacklistedToken
+        return !blacklistedToken
     }
 }

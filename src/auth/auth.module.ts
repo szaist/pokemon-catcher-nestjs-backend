@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy'
 @Module({
   imports: [
     JwtModule.register({
+      global: true,
       secret: 'secretKey',
       signOptions: { expiresIn: '1d' }
     })

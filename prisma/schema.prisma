@@ -14,13 +14,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
+  id        String    @id @default(cuid())
+  username  String    @unique
+  email     String    @unique
   name      String?
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  pokemons  Pokemon[]
 }
 
 model BlacklistedAuthToken {
@@ -28,4 +29,20 @@ model BlacklistedAuthToken {
   token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Pokemon {
+  id        String   @id @default(cuid())
+  pokemonId Int
+  name      String
+  type      String
+  image     String
+  weight    Float
+  height    Float
+  abilities String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 }
