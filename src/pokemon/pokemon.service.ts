@@ -4,7 +4,6 @@ import { CatchPokemonDto } from './dto/pokemon.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { checkPokemonHasType } from './utils/checkPokemonHasType';
 import { generatePokemonModel } from './utils/generatePokemonModel';
 import * as _ from 'lodash'
 
@@ -20,24 +19,20 @@ export class PokemonService {
                     id: true,
                     pokemonId: true,
                     name: true,
-                    type: true,
                     image: true,
                     weight: true,
                     height: true,
                     abilities: true,
-                }
+                },
             })
+            
     }
 
     async addPokemon(userId: string, pokemon: CatchPokemonDto) {
         const url = `${this.config.get<string>('pokemonApiUrl')}pokemon/${pokemon.id}`
         const {data: pokemonData} =  await firstValueFrom(this.httpService.get(url))
 
-        if(!checkPokemonHasType(pokemonData, pokemon.type)) {
-            throw new Error("Pokemon does not have the required type")
-        }
-
-        const pokemonModel = generatePokemonModel(pokemonData, pokemon.type)
+        const pokemonModel = generatePokemonModel(pokemonData)
         
         const newPokemon = await this.prisma.pokemon.create({
             data: {

@@ -35,7 +35,6 @@ model Pokemon {
   id        String   @id @default(cuid())
   pokemonId Int
   name      String
-  type      String
   image     String
   weight    Float
   height    Float

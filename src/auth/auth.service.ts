@@ -12,14 +12,13 @@ export class AuthService {
 
     async validateUser({username, password}: AuthPayloadDto) {
         const user = await this.prisma.user.findFirst({where: { username: username }})
-        console.log(user);
         if (!user) {
             return null
         }
 
-        if ( await argon.verify(user.password, password)) {
+        if (await argon.verify(user.password, password)) {
             const { password, ...result } = user
-            return await this.jwtService.signAsync(result, { secret: this.config.get('jwtSecret'), expiresIn: '1d'})
+            return await this.jwtService.signAsync({...result}, { secret: this.config.get('jwtSecret'), expiresIn: '1d'})
         }
 
         return null
@@ -52,6 +51,7 @@ export class AuthService {
         if(blacklistedToken){
             throw new HttpException('Token already blacklisted.', 409)
         }
+        console.log(token, authToken, 'token');
         return await this.prisma.blacklistedAuthToken.create({data: {token}})
     }
 }

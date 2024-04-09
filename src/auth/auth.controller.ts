@@ -18,8 +18,11 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUser: CreateUserDto) {
+    const password = createUser.password
     const user = await this.authService.register(createUser)
-    return user
+    
+    const token = await this.authService.validateUser({ username: user.username, password })
+    return { token }
   }
 
   @Post('logout')
