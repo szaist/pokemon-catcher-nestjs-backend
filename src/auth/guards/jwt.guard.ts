@@ -14,7 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate  {
     async canActivate(context) {
         const request = context.switchToHttp().getRequest()
         const token = this.extractTokenFromHeader(request)
-
+        console.log(token, 'token');
         if(!token) {
             throw new UnauthorizedException("Token not found")
         }
@@ -41,7 +41,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate  {
     }
 
     private checkTokenIsBlacklisted(token: string): boolean {
-        const blacklistedToken = this.prisma.blacklistedAuthToken.findFirst({where: {token}})
+        const blacklistedToken = this.prisma.blacklistedAuthToken.findFirst({where: { token: token}})
 
         return !blacklistedToken
     }
